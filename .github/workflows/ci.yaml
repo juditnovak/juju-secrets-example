@@ -35,7 +35,7 @@ jobs:
           # This is needed until https://bugs.launchpad.net/juju/+bug/1977582 is fixed
           bootstrap-options: ${{ matrix.bootstrap }}
           bootstrap-constraints: "cores=2 mem=2G"
-          juju-channel: "3.1/edge"
+          juju-channel: "3.1/stable"
       - name: Setup 3.1.6 OCI image for test model units
         run: |
           docker pull jujusolutions/jujud-operator:3.1.6
