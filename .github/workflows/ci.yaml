@@ -45,7 +45,7 @@ jobs:
         with:
           name: ${{ needs.build.outputs.artifact-name }}
       - name: Run integration tests
-        run: tox run -e integration-{{ matrix.tox-environment }} -- --model testing
+        run: tox run -e integration-${{ matrix.tox-environment }} -- --model testing
         env:
           CI_PACKED_CHARMS: ${{ needs.build.outputs.charms }}
       - name: Print logs
