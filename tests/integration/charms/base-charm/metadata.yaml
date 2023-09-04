@@ -17,4 +17,4 @@ peers:
 resources:
   secrets-test-image:
     type: oci-image
-    upstream-source: "ghcr.io/canonical/secrets-test:0.0.1-22.04_edge"
+    upstream-source: "ghcr.io/canonical/secrets-test:0.0.2-22.04_edge"
