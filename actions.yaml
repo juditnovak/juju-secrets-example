@@ -1,0 +1,17 @@
+forget-all-secrets:
+  description: Forgetting all secrets known by the charm
+
+set-secret:
+  description: Test action to set a secret key/value pair.
+  content:
+    type: dict
+    description: The content for the secret
+
+get-secrets:
+  description: Retrieve all the secrets stored in juju storage.
+
+delete-secrets:
+  description: Remove one or more of the secrets stored in juju storage.
+  keys:
+    type: list
+    description: The keys for secrets to be deleted
