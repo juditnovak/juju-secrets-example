@@ -2,7 +2,7 @@
 # See https://juju.is/docs/sdk/metadata-reference for a checklist and guidance.
 
 # See https://juju.is/docs/sdk/naming#heading--naming-charms for guidance.
-name: secrets-test
+name: secrets-base-charm
  
 display-name: Test for Juju Secrets
 
@@ -15,6 +15,6 @@ peers:
         interface: charm-peer
 
 resources:
-  secrets-test-image:
+  secrets-base-charm-image:
     type: oci-image
-    upstream-source: "ghcr.io/canonical/secrets-test:0.0.1-22.04_edge"
+    upstream-source: "ghcr.io/canonical/secrets-base-charm:0.0.1-22.04_edge"

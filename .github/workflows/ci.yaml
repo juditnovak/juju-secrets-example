@@ -23,11 +23,6 @@ jobs:
     strategy:              
       matrix:
         tox-environment: ["base"]
-        include:
-          # - snap: "3.1/stable"
-          #   bootstrap: "--agent-version 3.1.5"
-          - snap: "3.1/edge"
-            bootstrap: ""
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -40,7 +35,7 @@ jobs:
           # This is needed until https://bugs.launchpad.net/juju/+bug/1977582 is fixed
           bootstrap-options: ${{ matrix.bootstrap }}
           bootstrap-constraints: "cores=2 mem=2G"
-          juju-channel: ${{ matrix.snap }}
+          juju-channel: "3.1/stable"
       - name: Setup 3.1.6 OCI image for test model units
         run: |
           docker pull jujusolutions/jujud-operator:3.1.6
@@ -50,7 +45,7 @@ jobs:
         with:
           name: ${{ needs.build.outputs.artifact-name }}
       - name: Run integration tests
-        run: tox run -e integration-{{ matrix.tox-environment }} -- --model testing
+        run: tox run -e integration-${{ matrix.tox-environment }} -- --model testing
         env:
           CI_PACKED_CHARMS: ${{ needs.build.outputs.charms }}
       - name: Print logs
