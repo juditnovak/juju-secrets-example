@@ -14,7 +14,7 @@ from pytest_operator.plugin import OpsTest
 
 logger = logging.getLogger(__name__)
 
-METADATA = yaml.safe_load(Path("./metadata.yaml").read_text())
+METADATA = yaml.safe_load(Path("./tests/integration/charms/base-charm/metadata.yaml").read_text())
 APP_NAME = METADATA["name"]
 UNIT0_NAME = f"{APP_NAME}/0"
 
@@ -28,7 +28,7 @@ async def test_build_and_deploy(ops_test: OpsTest):
     # Build and deploy charm from local source folder
     charm = await ops_test.build_charm("./tests/integration/charms/base-charm")
     resources = {
-        "secrets-test-image": METADATA["resources"]["secrets-test-image"]["upstream-source"]
+        "secrets-base-charm-image": METADATA["resources"]["secrets-base-charm-image"]["upstream-source"]
     }
 
     # Deploy the charm and wait for active/idle status
