@@ -1,0 +1,63 @@
+# Copyright 2023 Canonical Ltd.
+# See LICENSE file for licensing details.
+name: Tests
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+
+jobs:
+
+  build:
+    name: Build charms
+    uses: canonical/data-platform-workflows/.github/workflows/build_charms_with_cache.yaml@v2
+
+  integration-test:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs:
+      - build
+    strategy:              
+      matrix:
+        tox-environment: ["base"]
+        include:
+          # - snap: "3.1/stable"
+          #   bootstrap: "--agent-version 3.1.5"
+          - snap: "3.1/edge"
+            bootstrap: ""
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup operator environment
+        # TODO: Replace with custom image on self-hosted runner
+        uses: charmed-kubernetes/actions-operator@main
+        with:                  
+          provider: microk8s   
+          channel: "1.26-strict/stable"   
+          # This is needed until https://bugs.launchpad.net/juju/+bug/1977582 is fixed
+          bootstrap-options: ${{ matrix.bootstrap }}
+          bootstrap-constraints: "cores=2 mem=2G"
+          juju-channel: ${{ matrix.snap }}
+      - name: Setup 3.1.6 OCI image for test model units
+        run: |
+          docker pull jujusolutions/jujud-operator:3.1.6
+          docker save jujusolutions/jujud-operator:3.1.6 | sg snap_microk8s -c "microk8s.ctr --namespace k8s.io image import -"
+      - name: Download packed charm(s)
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ needs.build.outputs.artifact-name }}
+      - name: Run integration tests
+        run: tox run -e integration-{{ matrix.tox-environment }} -- --model testing
+        env:
+          CI_PACKED_CHARMS: ${{ needs.build.outputs.charms }}
+      - name: Print logs
+        run: juju switch testing; juju debug-log --replay --no-tail
+      - name: Dump logs
+        uses: canonical/charm-logdump-action@main
+        if: failure()
+        with:
+          app: secrets-test
+          model: testing
