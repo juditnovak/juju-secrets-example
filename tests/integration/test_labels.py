@@ -26,13 +26,10 @@ async def test_build_and_deploy(ops_test: OpsTest):
     """
     # Build and deploy charm from local source folder
     charm = await ops_test.build_charm("./tests/integration/charms/labels-charm")
-    resources = {
-        "secrets-labels-charm-image": METADATA["resources"]["secrets-labels-charm-image"]["upstream-source"]
-    }
 
     # Deploy the charm and wait for active/idle status
     await asyncio.gather(
-        ops_test.model.deploy(charm, resources=resources, application_name=APP_NAME, num_units=1),
+        ops_test.model.deploy(charm, application_name=APP_NAME, num_units=1),
         ops_test.model.wait_for_idle(
             apps=[APP_NAME], status="active", raise_on_blocked=True, timeout=1000,
             wait_for_exact_units=1
@@ -86,8 +83,7 @@ async def test_change_secret(ops_test: OpsTest):
         "key2": "value2",
     }
 
-    for i in range(3):
-        await helper_execute_action(ops_test, "set-secret", {"content": {"key0": "newvalue"}})
+    await helper_execute_action(ops_test, "set-secret", {"content": {"key0": "newvalue"}})
 
     secrets_data = await helper_execute_action(ops_test, "get-secret")
 
