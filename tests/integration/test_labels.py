@@ -13,7 +13,7 @@ from pytest_operator.plugin import OpsTest
 
 logger = logging.getLogger(__name__)
 
-METADATA = yaml.safe_load(Path("./tests/integration/charms/base-charm/metadata.yaml").read_text())
+METADATA = yaml.safe_load(Path("./tests/integration/charms/labels-charm/metadata.yaml").read_text())
 APP_NAME = METADATA["name"]
 UNIT0_NAME = f"{APP_NAME}/0"
 
@@ -25,9 +25,9 @@ async def test_build_and_deploy(ops_test: OpsTest):
     Assert on the unit status before any relations/configurations take place.
     """
     # Build and deploy charm from local source folder
-    charm = await ops_test.build_charm("./tests/integration/charms/base-charm")
+    charm = await ops_test.build_charm("./tests/integration/charms/labels-charm")
     resources = {
-        "secrets-base-charm-image": METADATA["resources"]["secrets-base-charm-image"]["upstream-source"]
+        "secrets-labels-charm-image": METADATA["resources"]["secrets-labels-charm-image"]["upstream-source"]
     }
 
     # Deploy the charm and wait for active/idle status
@@ -55,56 +55,56 @@ async def test_add_secret(ops_test: OpsTest):
     """Testing secret update on a joined secret
     """
     # No secrets yet
-    secrets_data = await helper_execute_action(ops_test, "get-secrets")
+    secrets_data = await helper_execute_action(ops_test, "get-secret")
     # NOTE: event.set_results() removes keys with empty values
-    assert "secrets" not in secrets_data
+    assert "secret" not in secrets_data
 
     # Add a secret
-    await helper_execute_action(ops_test, "set-secret", {"key": "value"})
-    secrets_data = await helper_execute_action(ops_test, "get-secrets")
-    assert secrets_data["secrets"]["key"] == "value"
+    await helper_execute_action(ops_test, "set-secret", {"content": {"key": "value"}})
+    secrets_data = await helper_execute_action(ops_test, "get-secret")
+    assert secrets_data["secret"]["key"] == "value"
 
     # Remove all secrets
-    await helper_execute_action(ops_test, "forget-all-secrets")
-    secrets_data = await helper_execute_action(ops_test, "get-secrets")
-    assert "secrets" not in secrets_data
+    await helper_execute_action(ops_test, "forget-default-secret")
+    secrets_data = await helper_execute_action(ops_test, "get-secret")
+    assert "secret" not in secrets_data
 
 
 async def test_change_secret(ops_test: OpsTest):
     """Testing secret update on a joined secret
     """
-    await helper_execute_action(ops_test, "forget-all-secrets")
+    await helper_execute_action(ops_test, "forget-default-secret")
 
     content = {f"key{i}": f"value{i}" for i in range(3)}
-    await helper_execute_action(ops_test, "set-secret", content)
+    await helper_execute_action(ops_test, "set-secret", {'content': content})
 
-    secrets_data = await helper_execute_action(ops_test, "get-secrets")
+    secrets_data = await helper_execute_action(ops_test, "get-secret")
 
-    assert secrets_data["secrets"] == {
+    assert secrets_data["secret"] == {
         "key0": "value0",
         "key1": "value1",
         "key2": "value2",
     }
 
     for i in range(3):
-        await helper_execute_action(ops_test, "set-secret", {"key0": "newvalue"})
+        await helper_execute_action(ops_test, "set-secret", {"content": {"key0": "newvalue"}})
 
-    secrets_data = await helper_execute_action(ops_test, "get-secrets")
+    secrets_data = await helper_execute_action(ops_test, "get-secret")
 
-    assert secrets_data["secrets"]["key0"] == "newvalue"
+    assert secrets_data["secret"]["key0"] == "newvalue"
 
 
 async def test_delete_secret(ops_test: OpsTest):
     """Testing if it's possible to remove all keys from a joined secret one-by-one in SEPARATE event scopes.
     """
-    await helper_execute_action(ops_test, "forget-all-secrets")
+    await helper_execute_action(ops_test, "forget-default-secret")
 
     content = {f"key{i}": f"value{i}" for i in range(3)}
-    await helper_execute_action(ops_test, "set-secret", content)
+    await helper_execute_action(ops_test, "set-secret", {"content": content})
 
-    secrets_data = await helper_execute_action(ops_test, "get-secrets")
+    secrets_data = await helper_execute_action(ops_test, "get-secret")
 
-    assert secrets_data["secrets"] == {
+    assert secrets_data["secret"] == {
         "key0": "value0",
         "key1": "value1",
         "key2": "value2",
@@ -113,7 +113,7 @@ async def test_delete_secret(ops_test: OpsTest):
     for i in range(3):
         await helper_execute_action(ops_test, "delete-secrets", {"keys": [f"key{i}"]})
 
-    secrets_data = await helper_execute_action(ops_test, "get-secrets")
+    secrets_data = await helper_execute_action(ops_test, "get-secret")
 
     # NOTE: event.set_results() removes keys with empty values
-    assert "secrets" not in secrets_data
+    assert "secret" not in secrets_data
