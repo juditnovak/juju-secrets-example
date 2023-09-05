@@ -13,8 +13,3 @@ description: Test charm to demonstrate some juju secrets related behavior.
 peers:
     charm-peer:
         interface: charm-peer
-
-resources:
-  secrets-base-charm-image:
-    type: oci-image
-    upstream-source: "ghcr.io/canonical/secrets-base-charm:0.0.1-22.04_edge"
