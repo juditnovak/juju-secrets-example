@@ -1,0 +1,26 @@
+forget-default-secret:
+  description: Forgetting the default secret known by the charm
+
+set-secret:
+  description: Test action to set a secret key/value pair.
+  content:
+    type: dict
+    description: Unique part of the the content for the secret
+  label:
+    type: str
+    description: Identifier of the secret
+
+get-secret:
+  description: Retrieve all the secrets stored in juju storage.
+  label:
+    type: str
+    description: Unique part of the identifier of the secret
+
+delete-secrets:
+  description: Remove one or more of the secrets stored in juju storage.
+  keys:
+    type: list
+    description: The keys for secrets to be deleted
+  label:
+    type: str
+    description: Unique part of the identifier of the secret
