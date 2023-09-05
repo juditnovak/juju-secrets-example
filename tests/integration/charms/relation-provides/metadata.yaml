@@ -1,0 +1,12 @@
+# Copyright 2022 Canonical Ltd.
+# See LICENSE file for licensing details.
+name: database
+description: |
+  Data platform libs database charm used in integration tests.
+summary: |
+  Data platform libs database meant to be used
+  only for testing of the libs in this repository.
+
+provides:
+  database:
+    interface: database_client
