@@ -22,7 +22,7 @@ jobs:
       - build
     strategy:              
       matrix:
-        tox-environment: ["base", "labels", "relations"]
+        tox-environment: ["base", "labels", "cache", "relations"]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
