@@ -16,7 +16,6 @@ from ops.model import ActiveStatus
 
 from charms.data_platform_libs.v0.data_interfaces import (
     DatabaseCreatedEvent,
-    DatabaseEndpointsChangedEvent,
     DatabaseRequires,
 )
 
@@ -47,9 +46,6 @@ class ApplicationCharm(CharmBase):
         self.framework.observe(
             self.database.on.database_created, self._on_database_created
         )
-        self.framework.observe(
-            self.database.on.endpoints_changed, self._on_database_endpoints_changed
-        )
 
     def _on_start(self, _) -> None:
         """Only sets an Active status."""
@@ -60,10 +56,6 @@ class ApplicationCharm(CharmBase):
         # Retrieve the credentials using the charm library.
         logger.info(f"Database credentials: {event.username} {event.password}")
         self.unit.status = ActiveStatus("received database credentials of the database")
-
-    def _on_database_endpoints_changed(self, event: DatabaseEndpointsChangedEvent) -> None:
-        """Event triggered when the read/write endpoints of the database change."""
-        logger.info(f"Database endpoints have been changed to: {event.endpoints}")
 
 
 if __name__ == "__main__":

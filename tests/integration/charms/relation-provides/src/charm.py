@@ -9,8 +9,10 @@ of the libraries in this repository.
 """
 
 import logging
+import secrets
+import string
 
-from ops.charm import CharmBase
+from ops.charm import CharmBase, ActionEvent
 from ops.framework import StoredState
 from ops.main import main
 from ops.model import ActiveStatus, MaintenanceStatus
@@ -38,6 +40,7 @@ class DatabaseCharm(CharmBase):
         # Charm events defined in the database provides charm library.
         self.provides = DatabaseProvides(self, relation_name="database")
         self.framework.observe(self.provides.on.database_requested, self._on_database_requested)
+        self.framework.observe(self.on.set_password_action, self._on_set_password_action)
 
     def _on_start(self, event) -> None:
         self.unit.status = ActiveStatus()
@@ -52,10 +55,23 @@ class DatabaseCharm(CharmBase):
         )
 
         # Share additional information with the application.
+        password = self._new_password()
+        self.provides.set_credentials(event.relation.id, "admin", password)
         self.provides.set_tls(event.relation.id, "False")
         self.provides.set_version(event.relation.id, "0.1")
 
         self.unit.status = ActiveStatus()
+
+    def _on_set_password_action(self, event: ActionEvent):
+        """Change the admin password."""
+        password = self._new_password()
+        for relation in self.provides.relations:
+            self.provides.update_relation_data(relation.id, {"password": password})
+
+    def _new_password(self) -> str:
+        """Generate a random password string."""
+        choices = string.ascii_letters + string.digits
+        return "".join([secrets.choice(choices) for i in range(16)])
 
 
 if __name__ == "__main__":

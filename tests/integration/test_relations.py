@@ -62,7 +62,7 @@ async def test_database_relation_with_charm_libraries(ops_test: OpsTest):
     raw_data = (await ops_test.juju("show-unit", unit_provides_name))[1]
     data_provides = yaml.safe_load(raw_data)
 
-    assert 'tls' in data_provides[unit_provides_name]['relation-info'][0]['application-data']['secret_fields']
+    assert 'tls' in data_provides[unit_provides_name]['relation-info'][0]['application-data']['requested-secrets']
 
     unit_requires_name = f"{REQUIRES}/0"
     raw_data = (await ops_test.juju("show-unit", unit_requires_name))[1]
